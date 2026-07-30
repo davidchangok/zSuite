@@ -44,21 +44,23 @@ local IDTypes = {
 -- TooltipDataType → 内部 ID 类型
 local TooltipDataTypeMap = {}
 if _G.Enum and _G.Enum.TooltipDataType then
-    TooltipDataTypeMap[_G.Enum.TooltipDataType.Item] = "item"
-    TooltipDataTypeMap[_G.Enum.TooltipDataType.Spell] = "spell"
-    TooltipDataTypeMap[_G.Enum.TooltipDataType.Unit] = "unit"
-    TooltipDataTypeMap[_G.Enum.TooltipDataType.Quest] = "quest"
-    TooltipDataTypeMap[_G.Enum.TooltipDataType.Achievement] = "achievement"
-    TooltipDataTypeMap[_G.Enum.TooltipDataType.Currency] = "currency"
-    TooltipDataTypeMap[_G.Enum.TooltipDataType.Toy] = "toy"
-    TooltipDataTypeMap[_G.Enum.TooltipDataType.Mount] = "mount"
-    TooltipDataTypeMap[_G.Enum.TooltipDataType.Talent] = "talent"
-    TooltipDataTypeMap[_G.Enum.TooltipDataType.Companion] = "companion"
-    TooltipDataTypeMap[_G.Enum.TooltipDataType.BattlePet] = "battlepet"
-    TooltipDataTypeMap[_G.Enum.TooltipDataType.Instance] = "instance"
-    TooltipDataTypeMap[_G.Enum.TooltipDataType.Recipe] = "recipe"
-    TooltipDataTypeMap[_G.Enum.TooltipDataType.Macro] = "macro"
-    TooltipDataTypeMap[_G.Enum.TooltipDataType.PvPBrawl] = "pvp"
+    local ET = _G.Enum.TooltipDataType
+    local function S(key, value) if key then TooltipDataTypeMap[key] = value end end
+    S(ET.Item, "item")
+    S(ET.Spell, "spell")
+    S(ET.Unit, "unit")
+    S(ET.Quest, "quest")
+    S(ET.Achievement, "achievement")
+    S(ET.Currency, "currency")
+    S(ET.Toy, "toy")
+    S(ET.Mount, "mount")
+    S(ET.Talent, "talent")
+    S(ET.Companion, "companion")
+    S(ET.BattlePet, "battlepet")
+    S(ET.Instance, "instance")
+    S(ET.Recipe, "recipe")
+    S(ET.Macro, "macro")
+    S(ET.PvPBrawl, "pvp")
 end
 
 -- ============================================================

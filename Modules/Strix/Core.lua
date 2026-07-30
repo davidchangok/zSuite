@@ -93,7 +93,9 @@ local function BuildMenu(rootDescription)
         rootDescription:CreateButton(text, function()
             if _G.SendMailNameEditBox then
                 _G.SendMailNameEditBox:SetText(alt.name .. "-" .. (alt.realm or ""))
-                _G.SendMailFrame and _G.SendMailFrame.SendMailButton and _G.SendMailFrame.SendMailButton:Click()
+                if _G.SendMailFrame and _G.SendMailFrame.SendMailButton then
+                    _G.SendMailFrame.SendMailButton:Click()
+                end
             end
         end)
         altCount = altCount + 1
@@ -111,7 +113,9 @@ local function BuildMenu(rootDescription)
         rootDescription:CreateButton(r.name .. "-" .. (r.realm or ""), function()
             if _G.SendMailNameEditBox then
                 _G.SendMailNameEditBox:SetText(r.name .. "-" .. (r.realm or ""))
-                _G.SendMailFrame and _G.SendMailFrame.SendMailButton and _G.SendMailFrame.SendMailButton:Click()
+                if _G.SendMailFrame and _G.SendMailFrame.SendMailButton then
+                    _G.SendMailFrame.SendMailButton:Click()
+                end
             end
         end)
         recCount = recCount + 1

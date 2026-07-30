@@ -161,6 +161,13 @@ end
 -- ============================================================
 --  定时器管理
 -- ============================================================
+local function StopUpdateTimer()
+    if updateTimer then
+        updateTimer:Cancel()
+        updateTimer = nil
+    end
+end
+
 local function StartUpdateTimer()
     StopUpdateTimer()
     local db = GetDB()
@@ -170,13 +177,6 @@ local function StartUpdateTimer()
     updateTimer = _G.C_Timer.NewTicker(interval, function()
         pcall(UpdatePhaseID)  -- pcall 防瞬态异常导致定时器停止
     end)
-end
-
-local function StopUpdateTimer()
-    if updateTimer then
-        updateTimer:Cancel()
-        updateTimer = nil
-    end
 end
 
 -- ============================================================
