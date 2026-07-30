@@ -156,6 +156,7 @@ local function HandleSlash(msg)
 end
 
 _G.SLASH_ZSUITE1 = "/zsuite"
+_G.SLASH_ZSUITE2 = "/zs"
 _G.SlashCmdList["ZSUITE"] = HandleSlash
 
 -- ============================================================

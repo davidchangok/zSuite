@@ -29,7 +29,9 @@ local function BuildGeneralTab(content)
         function() return db.ui.fontSize end,
         function(v)
             db.ui.fontSize = v
-            zSuite.ApplyUIConfig()
+            zUI.config.fontSize = v
+            -- 不调用 ApplyUIConfig：它触发 RefreshAllFrameBackgrounds 会使
+            -- 选项窗体的 backdrop 被 SetBackdrop({bgFile=WHITE8X8}) 重置为白色
         end, "所有模块的基础字号（中文最小 13）"
     )
 
@@ -42,7 +44,7 @@ local function BuildGeneralTab(content)
         function() return db.ui.characterWindowLayout end,
         function(v)
             db.ui.characterWindowLayout = v
-            zSuite.ApplyUIConfig()
+            zUI.config.characterWindowLayout = v
         end, "启用后每个角色的窗口位置独立保存"
     )
 
