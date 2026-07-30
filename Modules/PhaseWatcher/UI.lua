@@ -130,7 +130,7 @@ function mod:UpdateUI()
         r, g, b = 1, 0.4, 0
     elseif id then
         text = "Phase: " .. mod:FormatPhaseID(id, db.useHexadecimal)
-        r, g, b = 0.20, 1, 0.60
+        r, g, b = db.textR or 0.20, db.textG or 1.0, db.textB or 0.60
     elseif src == "cached" then
         text = L.CACHED or "Cached"
         r, g, b = 0.5, 0.5, 0.5
@@ -139,7 +139,7 @@ function mod:UpdateUI()
         r, g, b = 1, 0.27, 0.27
     end
 
-    phaseText:SetFont(zUI.GetDefaultFontTexture(), db.fontSize or 16, zUI.GetFontFlags())
+    phaseText:SetFont(db.fontFace or zUI.GetDefaultFontTexture(), db.fontSize or 16, zUI.GetFontFlags())
     phaseText:SetText(text)
     phaseText:SetTextColor(r, g, b, db.textAlpha or 1.0)
 
@@ -185,6 +185,10 @@ function mod:UpdateAppearance()
             -- 窗口透明度：只改 backdrop 背景 alpha，文字不受影响
             local bg = zUI.COLORS.bg
             mainFrame:SetBackdropColor(bg[1], bg[2], bg[3], db.windowAlpha or 1.0)
+            -- 字体
+            if phaseText then
+                phaseText:SetFont(db.fontFace or zUI.GetDefaultFontTexture(), db.fontSize or 16, zUI.GetFontFlags())
+            end
         end
     end
 end

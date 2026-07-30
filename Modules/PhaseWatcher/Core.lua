@@ -383,4 +383,48 @@ function mod:BuildOptions(content)
         function() return db.fontSize end,
         function(v) db.fontSize = v; if mod.UpdateAppearance then mod:UpdateAppearance() end end
     )
+
+    -- 文字颜色
+    local colorLabel = content:CreateFontString(nil, "OVERLAY")
+    colorLabel:SetFont(zUI.GetDefaultFontTexture(), 11, zUI.GetFontFlags())
+    colorLabel:SetPoint("TOPLEFT", content, "TOPLEFT", 8, yOff)
+    colorLabel:SetText("文字颜色")
+    colorLabel:SetTextColor(0.85, 0.85, 0.85)
+    local swatch = zUI.OptionsColorSwatch(content, db.textR or 0.20, db.textG or 1.0, db.textB or 0.60,
+        function(r, g, b)
+            db.textR = r; db.textG = g; db.textB = b
+            if mod.UpdateUI then mod:UpdateUI() end
+        end,
+        function() return 0.20, 1.0, 0.60 end,  -- 右键重置为默认绿
+        "检测到位面时的文字颜色"
+    )
+    swatch:SetPoint("LEFT", colorLabel, "RIGHT", 8, 0)
+    yOff = yOff - 26
+
+    -- 字体选择（循环按钮）
+    local fontLabel = content:CreateFontString(nil, "OVERLAY")
+    fontLabel:SetFont(zUI.GetDefaultFontTexture(), 11, zUI.GetFontFlags())
+    fontLabel:SetPoint("TOPLEFT", content, "TOPLEFT", 8, yOff)
+    fontLabel:SetText("字体")
+    fontLabel:SetTextColor(0.85, 0.85, 0.85)
+
+    local FONTS = {
+        {name = "zUI 默认", path = nil},
+        {name = "游戏默认", path = _G.STANDARD_TEXT_FONT or "Fonts\\FRIZQT__.TTF"},
+        {name = "伤害字体", path = _G.DAMAGE_TEXT_FONT or "Fonts\\FRIZQT__.TTF"},
+        {name = "聊天字体", path = (_G.ChatFontNormal and _G.ChatFontNormal:GetFont()) or "Fonts\\FRIZQT__.TTF"},
+    }
+    local fontIdx = 1
+    for i, f in ipairs(FONTS) do
+        if db.fontFace == f.path then fontIdx = i; break end
+    end
+    local fontBtn
+    fontBtn = zUI.OptionsBtn(content, yOff - 2, FONTS[fontIdx].name, function()
+        fontIdx = fontIdx % #FONTS + 1
+        db.fontFace = FONTS[fontIdx].path
+        fontBtn:SetText(FONTS[fontIdx].name)
+        if mod.UpdateAppearance then mod:UpdateAppearance() end
+    end, 140, 64)
+    fontBtn:SetText(FONTS[fontIdx].name)
+    yOff = yOff - 28
 end

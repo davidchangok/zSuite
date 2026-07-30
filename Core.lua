@@ -69,6 +69,7 @@ local DB_DEFAULTS = {
             windowStyle = "Standard",
             windowAlpha = 1.0,
             textAlpha = 1.0,
+            textR = 0.20, textG = 1.0, textB = 0.60,
             frameless = false,
             backgroundColor = {r = 0, g = 0, b = 0, a = 0.85},
             borderColor = {r = 0.4, g = 0.4, b = 0.4, a = 1},
