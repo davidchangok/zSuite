@@ -365,7 +365,7 @@ function mod:BuildOptions(content)
     yOff = zUI.OptionsSlider(content, yOff, "窗口透明度", 0.1, 1.0, 0.1,
         function() return db.windowAlpha end,
         function(v) db.windowAlpha = v; if mod.UpdateAppearance then mod:UpdateAppearance() end end,
-        "窗体整体透明度（背景+文字一起）"
+        "窗口背景透明度（仅背景，文字不受影响）"
     )
     yOff = zUI.OptionsSlider(content, yOff, "信息透明度", 0.1, 1.0, 0.1,
         function() return db.textAlpha or 1.0 end,

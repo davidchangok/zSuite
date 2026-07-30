@@ -249,7 +249,7 @@ local function BuildPhaseWatcherTab(content)
             cfg.windowAlpha = v
             if mod and mod.UpdateAppearance then mod:UpdateAppearance() end
         end,
-        "窗体整体透明度（背景+文字一起）"
+        "窗口背景透明度（仅背景，文字不受影响）"
     )
     yOff = zUI.OptionsSlider(content, yOff, "信息透明度", 0.1, 1.0, 0.1,
         function() return cfg.textAlpha or 1.0 end,

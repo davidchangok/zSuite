@@ -100,8 +100,9 @@ local function CreateWindow()
         mainFrame:SetPoint("CENTER", _G.UIParent, "CENTER", 0, 0)
     end
 
-    -- 透明度与锁定
-    mainFrame:SetAlpha(db.windowAlpha or 1.0)
+    -- 窗口背景透明度（仅背景，不影响文字）
+    mainFrame:SetBackdropColor(zUI.COLORS.bg[1], zUI.COLORS.bg[2], zUI.COLORS.bg[3], db.windowAlpha or 1.0)
+    -- 锁定
     if db.isLocked then mainFrame:SetMovable(false) end
 
     mainFrame:Show()
@@ -156,7 +157,11 @@ end
 function mod:UpdateAppearance()
     if mainFrame then
         local db = DB()
-        if db then mainFrame:SetAlpha(db.windowAlpha or 1.0) end
+        if db then
+            -- 窗口透明度：只改 backdrop 背景 alpha，文字不受影响
+            local bg = zUI.COLORS.bg
+            mainFrame:SetBackdropColor(bg[1], bg[2], bg[3], db.windowAlpha or 1.0)
+        end
     end
 end
 
