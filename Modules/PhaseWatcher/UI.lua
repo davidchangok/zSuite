@@ -105,6 +105,8 @@ local function CreateWindow()
     -- 无窗体
     if db.frameless then
         titleBar:Hide(); closeBtn:Hide(); accentLine:Hide()
+        local border = zUI.COLORS.border
+        mainFrame:SetBackdropBorderColor(border[1], border[2], border[3], 0)
     end
     -- 锁定
     if db.isLocked then mainFrame:SetMovable(false) end
@@ -162,14 +164,17 @@ function mod:UpdateFrameless()
     if not mainFrame then return end
     local db = DB()
     if not db then return end
+    local border = zUI.COLORS.border
     if db.frameless then
         if titleBar then titleBar:Hide() end
         if closeBtn then closeBtn:Hide() end
         if accentLine then accentLine:Hide() end
+        mainFrame:SetBackdropBorderColor(border[1], border[2], border[3], 0)
     else
         if titleBar then titleBar:Show() end
         if closeBtn then closeBtn:Show() end
         if accentLine then accentLine:Show() end
+        mainFrame:SetBackdropBorderColor(border[1], border[2], border[3], 1)
     end
 end
 
