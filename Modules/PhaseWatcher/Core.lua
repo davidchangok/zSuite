@@ -59,12 +59,12 @@ local function ExtractPhaseFromGUID(guid)
             return nil, "NO_PHASE_IN_GUID"
         end
 
-        local zoneUID = select(6, strsplit("-", guid))
-        if not zoneUID or zoneUID == "" or zoneUID == "0000000000000000" then
+        local zoneUID = select(5, strsplit("-", guid))
+        if not zoneUID or zoneUID == "" or zoneUID == "0" or zoneUID == "0000000000000000" then
             return nil, "NO_PHASE_IN_GUID"
         end
 
-        local phaseID = tonumber(zoneUID, 16)
+        local phaseID = tonumber(zoneUID)
         if not phaseID or phaseID <= 0 or phaseID >= 100000000 then
             return nil, "NO_PHASE_IN_GUID"
         end
@@ -251,9 +251,20 @@ end
 -- ============================================================
 local eventFrame = CreateFrame("Frame")
 eventFrame:SetScript("OnEvent", function(_, event, ...)
-    if event == "PLAYER_ENTERING_WORLD" then
+    if event == "ADDON_LOADED" then
+        -- 初始化 UI：Core.lua 的 ADDON_LOADED handler 已完成了 DB 初始化
+        -- 和 ApplyUIConfig，然后调用 mod:Init()。这里确保 UI 已创建。
+        if mod.InitializeUI then
+            mod:InitializeUI()
+        end
+    elseif event == "PLAYER_ENTERING_WORLD" then
         UpdatePhaseID()
         StartUpdateTimer()
+        -- Bug#4 修复：PEW 时恢复窗口可见性（关闭按钮会设 showFrame=false，
+        -- 但 PEW 应尊重 showFrame；如果为 true 则重新显示窗口）
+        if mod.UpdateFrameVisibility then
+            mod:UpdateFrameVisibility()
+        end
     elseif event == "PLAYER_TARGET_CHANGED" then
         UpdatePhaseID()
     elseif event == "UPDATE_MOUSEOVER_UNIT" then
@@ -272,6 +283,7 @@ eventFrame:SetScript("OnEvent", function(_, event, ...)
     end
 end)
 
+eventFrame:RegisterEvent("ADDON_LOADED")
 eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
 eventFrame:RegisterEvent("PLAYER_TARGET_CHANGED")
 eventFrame:RegisterEvent("UPDATE_MOUSEOVER_UNIT")
@@ -285,6 +297,8 @@ function mod:Init()
     local db = GetDB()
     if not db or not db.enabled then return end
     StartUpdateTimer()
+    -- InitializeUI 由 ADDON_LOADED 事件调用（确保 zSuite DB 已就绪）
+    -- 这里只启动定时器，UI 创建在事件中完成
 end
 
 -- ============================================================

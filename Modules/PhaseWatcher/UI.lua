@@ -5,6 +5,8 @@
     Bug 修复：
     #1 (高危) — Lua 5.1 闭包变量复用：使用工厂函数模式捕获循环变量
     #3 — 硬编码像素常量 → zUI 动态字号驱动
+    #4 — 窗口不显示: 关闭按钮 Hide() 不改 showFrame → 永远隐藏; PEW 不恢复可见性
+         修复: closeBtn 设 showFrame=false; ADDON_LOADED 自初始化; PEW 恢复可见性; 初始文字
 
     窗口风格映射 (Standard/Tooltip/Flat/None → zUI SurfaceVariant)：
     - Standard → PANEL
@@ -36,7 +38,7 @@ end
 -- ============================================================
 --  主窗口创建
 -- ============================================================
-local mainFrame, phaseText, dragHint
+local mainFrame, phaseText
 
 local function CreateMainFrame()
     local db = GetDB()
@@ -50,17 +52,24 @@ local function CreateMainFrame()
     local titleBar = zUI.TitleBar(mainFrame, 24)
     zUI.SetupDrag(mainFrame, titleBar, "phasewatcher")
 
-    -- 关闭按钮
-    local closeBtn = zUI.CloseButton(titleBar, function() mainFrame:Hide() end)
+    -- 关闭按钮 —— 设 showFrame = false 后隐藏，与原始 /pw hide 行为一致
+    -- Bug#4 修复: 原关闭按钮只 Hide() 不改 showFrame，导致 PEW 重载后窗口永久消失
+    local closeBtn = zUI.CloseButton(titleBar, function()
+        local d = GetDB()
+        if d then d.showFrame = false end
+        mainFrame:Hide()
+    end)
 
     -- 顶部强调线
-    local accent = zUI.TopAccent(mainFrame, 0.20, 0.66, 0.63)
+    zUI.TopAccent(mainFrame, 0.20, 0.66, 0.63)
 
-    -- 位面 ID 文字
+    -- 位面 ID 文字 —— 初始文字避免空窗口
     phaseText = mainFrame:CreateFontString(nil, "OVERLAY")
     phaseText:SetFont(zUI.GetDefaultFontTexture(), db.fontSize or 16, zUI.GetFontFlags())
     phaseText:SetPoint("CENTER", mainFrame, "CENTER", 0, -2)
     phaseText:SetJustifyH("CENTER")
+    phaseText:SetText(L.INITIALIZING or "Initializing...")
+    phaseText:SetTextColor(0.5, 0.5, 0.5)
 
     -- 右键菜单
     mainFrame:SetScript("OnMouseDown", function(self, button)
@@ -135,17 +144,17 @@ function mod:UpdateUI()
     local r, g, b = 0.5, 0.5, 0.5  -- 默认灰色
 
     if isSecret then
-        displayText = "|cFFFF6600" .. L.SECRET_VALUE .. "|r"
+        displayText = "|cFFFF6600" .. (L.SECRET_VALUE or "Hidden") .. "|r"
         r, g, b = 1.0, 0.4, 0.0
     elseif phaseID then
         local formatted = mod:FormatPhaseID(phaseID, db.useHexadecimal)
-        displayText = "|cFF33FF99" .. formatted .. "|r"
+        displayText = "|cFF33FF99Phase: " .. formatted .. "|r"
         r, g, b = 0.20, 1.0, 0.60
     elseif source == "cached" then
-        displayText = "|cFF888888" .. L.CACHED .. "|r"
+        displayText = "|cFF888888" .. (L.CACHED or "Cached") .. "|r"
         r, g, b = 0.5, 0.5, 0.5
     else
-        displayText = "|cFFFF4444" .. L.NOT_DETECTED .. "|r"
+        displayText = "|cFFFF4444" .. (L.NOT_DETECTED or "Not Detected") .. "|r"
         r, g, b = 1.0, 0.27, 0.27
     end
 
@@ -209,7 +218,7 @@ function mod:UpdateAppearance()
     -- 字体
     phaseText:SetFont(zUI.GetDefaultFontTexture(), db.fontSize or 16, zUI.GetFontFlags())
 
-    self:UpdateUI()
+    mod:UpdateUI()
 end
 
 function mod:ResetFramePosition()
@@ -220,23 +229,19 @@ function mod:ResetFramePosition()
 end
 
 -- ============================================================
---  初始化
+--  初始化 (公开 — 由 Core.lua 的 ADDON_LOADED 调用)
 -- ============================================================
-local function InitializeUI()
+function mod:InitializeUI()
     local db = GetDB()
     if not db or not db.showFrame then return end
 
-    CreateMainFrame()
+    if not mainFrame then
+        CreateMainFrame()
+    end
+
     if mainFrame then
         mod:UpdateAppearance()
         mod:UpdateUI()
         mod:UpdateFrameVisibility()
     end
-end
-
--- 在模块 Init 中调用
-local origInit = mod.Init
-function mod:Init()
-    if origInit then origInit(mod) end
-    InitializeUI()
 end

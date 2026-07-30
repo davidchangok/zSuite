@@ -20,22 +20,11 @@ local function BuildGeneralTab(content)
 
     local yOff = -4
 
-    -- 全局界面设置
-    zUI.OptionsSectionLabel(content, yOff, "界面设置")
-    yOff = yOff - 12
+    -- 字体大小由 zUI.config.fontSize 控制（默认 13），仅在创建新 FontString 时生效。
+    -- 由于 WoW 的 FontString 创建后无法动态批量刷新，全局字号滑块已移除。
+    -- 需要字体大小设置的模块（如 PhaseWatcher）自行提供独立设置。
+    -- "界面设置" 下暂无控件，保留标签以便未来添加真正有效的设置项。
 
-    -- 字体大小
-    yOff = zUI.OptionsSlider(content, yOff, "字体大小", 10, 24, 1,
-        function() return db.ui.fontSize end,
-        function(v)
-            db.ui.fontSize = v
-            zUI.config.fontSize = v
-            -- 不调用 ApplyUIConfig：它触发 RefreshAllFrameBackgrounds 会使
-            -- 选项窗体的 backdrop 被 SetBackdrop({bgFile=WHITE8X8}) 重置为白色
-        end, "所有模块的基础字号（中文最小 13）"
-    )
-
-    -- 字体描边
     zUI.OptionsSectionLabel(content, yOff, "窗口")
     yOff = yOff - 12
 

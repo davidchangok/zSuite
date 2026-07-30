@@ -194,41 +194,12 @@ local function ProcessTooltipData(tooltip, data)
 end
 
 -- ============================================================
---  hooksecurefunc 回退（第三方 UI 绕过 TooltipDataProcessor 时）
+--  hooksecurefunc 回退 —— 已移除
+--  原因: TooltipDataProcessor（12.0+ 标准 API）已经覆盖所有工具提示类型。
+--  SetHyperlink/SetUnit hook 会导致同一条 tooltip 被注入 2~3 次相同的 ID 行，
+--  因为 TooltipDataProcessor 回调 + hooksecurefunc 回调都会触发。
+--  在 12.0 中 TooltipDataProcessor 是唯一推荐路径。
 -- ============================================================
-local function RegisterHeavyHooks()
-    -- GameTooltip.SetHyperlink
-    _G.hooksecurefunc(_G.GameTooltip, "SetHyperlink", function(self, link)
-        if not IsModuleEnabled() then return end
-        if not link then return end
-        local linkType, id = string.match(link, "^(%a+):(%d+)")
-        if not linkType or not id then return end
-        local mappedType = IDTypes[linkType:upper()]
-        if mappedType then
-            _G.C_Timer.After(0, function()
-                if Security.IsSafe(id) then
-                    AddLine(self, tonumber(id), mappedType)
-                    AddRelatedIDs(self, tonumber(id), mappedType)
-                end
-            end)
-        end
-    end)
-
-    -- GameTooltip.SetUnit
-    _G.hooksecurefunc(_G.GameTooltip, "SetUnit", function(self, unit)
-        if not IsModuleEnabled() then return end
-        _G.C_Timer.After(0, function()
-            -- Security: UnitGUID 必须用 SafeGet
-            local guid = Security.SafeGet(_G.UnitGUID, unit or "mouseover")
-            if guid and type(guid) == "string" then
-                local unitID = GetUnitID(guid)
-                if unitID then
-                    AddLine(self, unitID, "unit")
-                end
-            end
-        end)
-    end)
-end
 
 -- ============================================================
 --  初始化
@@ -236,10 +207,9 @@ end
 function mod:Init()
     if not IsModuleEnabled() then return end
 
-    -- 主要路径：TooltipDataProcessor（轻量，12.0+）
+    -- 唯一路径：TooltipDataProcessor（12.0+ 标准 API）
+    -- 对全部已知的 TooltipDataType 枚举值注册 ProcessTooltipData 回调
     if _G.TooltipDataProcessor and _G.TooltipDataProcessor.AddTooltipPostCall then
-        _G.TooltipDataProcessor.AddTooltipPostCall(_G.Enum.TooltipDataType.Item, ProcessTooltipData)
-        -- 对所有已知的工具提示类型注册
         for _, enumValue in pairs(_G.Enum.TooltipDataType) do
             if type(enumValue) == "number" then
                 pcall(function()
@@ -248,9 +218,6 @@ function mod:Init()
             end
         end
     end
-
-    -- 回退路径：hooksecurefunc（兜底第三方 UI）
-    RegisterHeavyHooks()
 
     -- 斜杠命令（Bug#4 修复：nil guard）
     _G.SLASH_LORISID1 = "/lid"
