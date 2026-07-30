@@ -134,7 +134,7 @@ function mod:UpdateUI()
 
     phaseText:SetFont(zUI.GetDefaultFontTexture(), db.fontSize or 16, zUI.GetFontFlags())
     phaseText:SetText(text)
-    phaseText:SetTextColor(r, g, b)
+    phaseText:SetTextColor(r, g, b, db.textAlpha or 1.0)
 
     local w = phaseText:GetStringWidth()
     if w and w > 0 then mainFrame:SetWidth(math.max(140, w + 40)) end
