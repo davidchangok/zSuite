@@ -16,19 +16,10 @@ local L = mod.L or _G.zSuitePhaseWatcher_L
 local mainFrame, phaseText, titleBar, closeBtn, accentLine
 
 -- ============================================================
---  快速 DB 访问
--- ============================================================
-local function DB()
-    if zSuite.db and zSuite.db.modules then
-        return zSuite.db.modules.phasewatcher
-    end
-end
-
--- ============================================================
 --  创建窗口
 -- ============================================================
 local function CreateWindow()
-    local db = DB()
+    local db = mod.GetDB()
     if not db then return end
 
     -- zUI 暗色风格窗体
@@ -59,7 +50,7 @@ local function CreateWindow()
     mainFrame:SetScript("OnMouseDown", function(self, button)
         if button == "RightButton" and _G.MenuUtil then
             _G.MenuUtil.CreateContextMenu(self, function(root)
-                local d = DB()
+                local d = mod.GetDB()
                 if not d then return end
                 root:CreateCheckbox(L.SETTINGS_HEX_FORMAT, d.useHexadecimal, function() mod:ToggleFormat() end)
                 root:CreateCheckbox(L.SETTINGS_LOCK_FRAME, d.isLocked, function() mod:ToggleLock() end)
@@ -119,7 +110,7 @@ end
 -- ============================================================
 function mod:UpdateUI()
     if not mainFrame or not phaseText then return end
-    local db = DB()
+    local db = mod.GetDB()
     if not db then return end
 
     local id, src, secret = mod:GetPhaseID(), mod:GetPhaseSource(), mod:IsSecretValue()
@@ -149,7 +140,7 @@ end
 
 function mod:UpdateFrameVisibility()
     if not mainFrame then return end
-    local db = DB()
+    local db = mod.GetDB()
     if not db then return end
     if not db.showFrame then mainFrame:Hide(); return end
     if db.autoHideInCombat and _G.InCombatLockdown and _G.InCombatLockdown() then mainFrame:Hide(); return end
@@ -157,12 +148,12 @@ function mod:UpdateFrameVisibility()
 end
 
 function mod:UpdateFrameLock()
-    if mainFrame then mainFrame:SetMovable(not (DB() and DB().isLocked)) end
+    if mainFrame then mainFrame:SetMovable(not (mod.GetDB() and mod.GetDB().isLocked)) end
 end
 
 function mod:UpdateFrameless()
     if not mainFrame then return end
-    local db = DB()
+    local db = mod.GetDB()
     if not db then return end
     local border = zUI.COLORS.border
     if db.frameless then
@@ -180,7 +171,7 @@ end
 
 function mod:UpdateAppearance()
     if mainFrame then
-        local db = DB()
+        local db = mod.GetDB()
         if db then
             -- 窗口透明度：只改 backdrop 背景 alpha，文字不受影响
             local bg = zUI.COLORS.bg
@@ -197,14 +188,14 @@ function mod:ResetFramePosition()
     if not mainFrame then return end
     mainFrame:ClearAllPoints()
     mainFrame:SetPoint("CENTER", _G.UIParent, "CENTER", 0, 0)
-    local db = DB(); if db then db.posX = nil; db.posY = nil end
+    local db = mod.GetDB(); if db then db.posX = nil; db.posY = nil end
 end
 
 -- ============================================================
 --  初始化
 -- ============================================================
 function mod:InitializeUI()
-    if DB() and DB().showFrame and not mainFrame then
+    if mod.GetDB() and mod.GetDB().showFrame and not mainFrame then
         CreateWindow()
         mod:UpdateUI()
     end

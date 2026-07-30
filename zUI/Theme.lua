@@ -837,7 +837,9 @@ function zUI.OptionsBtn(body, yOff, label, onClick, width, pad, fontSize)
         btn:SetScript("OnClick", onClick)
     end
 
-    return yOff - 22
+    btn._label = lbl
+
+    return yOff - 22, btn
 end
 
 --- 滑块

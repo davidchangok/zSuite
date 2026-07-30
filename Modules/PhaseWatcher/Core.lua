@@ -282,6 +282,9 @@ eventFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
 -- ============================================================
 --  初始化
 -- ============================================================
+-- 共享 DB 访问器 — UI.lua 通过 mod.GetDB() 使用，消除重复定义
+mod.GetDB = GetDB
+
 function mod:Init()
     local db = GetDB()
     if not db or not db.enabled then return end
@@ -401,7 +404,7 @@ function mod:BuildOptions(content)
     swatch:SetPoint("LEFT", colorLabel, "RIGHT", 8, 0)
     yOff = yOff - 26
 
-    -- 字体选择（手工按钮——zUI.OptionsBtn 不返回 widget 引用）
+    -- 字体选择
     local fontLabel = content:CreateFontString(nil, "OVERLAY")
     fontLabel:SetFont(zUI.GetDefaultFontTexture(), 11, zUI.GetFontFlags())
     fontLabel:SetPoint("TOPLEFT", content, "TOPLEFT", 8, yOff)
@@ -419,34 +422,11 @@ function mod:BuildOptions(content)
         if db.fontFace == f.path then fontIdx = i; break end
     end
 
-    local fontBtn = CreateFrame("Button", nil, content, "BackdropTemplate")
-    fontBtn:SetSize(140, 20)
-    fontBtn:SetPoint("TOPLEFT", content, "TOPLEFT", 64, yOff - 2)
-    fontBtn:SetBackdrop(zUI.MakeBackdrop())
-    fontBtn:SetBackdropColor(0.05, 0.10, 0.18, 1)
-    fontBtn:SetBackdropBorderColor(0.18, 0.40, 0.45, 1)
-
-    local fontBtnText = fontBtn:CreateFontString(nil, "OVERLAY")
-    fontBtnText:SetFont(zUI.GetDefaultFontTexture(), 11, zUI.GetFontFlags())
-    fontBtnText:SetPoint("CENTER")
-    fontBtnText:SetText(FONTS[fontIdx].name)
-    fontBtnText:SetTextColor(0.25, 0.80, 0.68)
-
-    fontBtn:SetScript("OnClick", function()
+    local _, fontBtn = zUI.OptionsBtn(content, yOff - 2, FONTS[fontIdx].name, function()
         fontIdx = fontIdx % #FONTS + 1
         db.fontFace = FONTS[fontIdx].path
-        fontBtnText:SetText(FONTS[fontIdx].name)
+        if fontBtn._label then fontBtn._label:SetText(FONTS[fontIdx].name) end
         if mod.UpdateAppearance then mod:UpdateAppearance() end
-    end)
-    fontBtn:SetScript("OnEnter", function()
-        fontBtn:SetBackdropColor(0.08, 0.20, 0.32, 1)
-        fontBtn:SetBackdropBorderColor(0.20, 0.66, 0.63, 1)
-        fontBtnText:SetTextColor(0.20, 0.66, 0.63)
-    end)
-    fontBtn:SetScript("OnLeave", function()
-        fontBtn:SetBackdropColor(0.05, 0.10, 0.18, 1)
-        fontBtn:SetBackdropBorderColor(0.18, 0.40, 0.45, 1)
-        fontBtnText:SetTextColor(0.25, 0.80, 0.68)
-    end)
+    end, 140, 64)
     yOff = yOff - 28
 end
