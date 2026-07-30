@@ -297,8 +297,11 @@ function mod:Init()
     local db = GetDB()
     if not db or not db.enabled then return end
     StartUpdateTimer()
-    -- InitializeUI 由 ADDON_LOADED 事件调用（确保 zSuite DB 已就绪）
-    -- 这里只启动定时器，UI 创建在事件中完成
+    -- 直接调用 InitializeUI：zSuite Core.lua 保证 Init() 在 DB 就绪后才调用
+    -- ADDON_LOADED 事件处理器在所有插件上触发，过滤不可靠
+    if mod.InitializeUI then
+        mod:InitializeUI()
+    end
 end
 
 -- ============================================================

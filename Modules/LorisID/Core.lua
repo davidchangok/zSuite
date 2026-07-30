@@ -194,12 +194,26 @@ local function ProcessTooltipData(tooltip, data)
 end
 
 -- ============================================================
---  hooksecurefunc 回退 —— 已移除
---  原因: TooltipDataProcessor（12.0+ 标准 API）已经覆盖所有工具提示类型。
---  SetHyperlink/SetUnit hook 会导致同一条 tooltip 被注入 2~3 次相同的 ID 行，
---  因为 TooltipDataProcessor 回调 + hooksecurefunc 回调都会触发。
---  在 12.0 中 TooltipDataProcessor 是唯一推荐路径。
+--  SetUnit hook — Unit tooltip GUID 提取
+--  TooltipDataProcessor 对 Unit 类型的回调不一定包含 data.guid 字段，
+--  所以必须保留 SetUnit hook 来直接从 UnitGUID(unit) 获取 GUID。
+--  AddLine() 内置 HasLine 去重，不会与 TDP 路径产生重复 ID。
+--  SetHyperlink hook 不恢复：TDP 已完整覆盖物品/法术/等类型。
 -- ============================================================
+local function RegisterUnitHook()
+    _G.hooksecurefunc(_G.GameTooltip, "SetUnit", function(self, unit)
+        if not IsModuleEnabled() then return end
+        _G.C_Timer.After(0, function()
+            local guid = Security.SafeGet(_G.UnitGUID, unit or "mouseover")
+            if guid and type(guid) == "string" then
+                local unitID = GetUnitID(guid)
+                if unitID then
+                    AddLine(self, unitID, "unit")
+                end
+            end
+        end)
+    end)
+end
 
 -- ============================================================
 --  初始化
@@ -207,8 +221,7 @@ end
 function mod:Init()
     if not IsModuleEnabled() then return end
 
-    -- 唯一路径：TooltipDataProcessor（12.0+ 标准 API）
-    -- 对全部已知的 TooltipDataType 枚举值注册 ProcessTooltipData 回调
+    -- 主路径：TooltipDataProcessor（12.0+ 标准 API，覆盖物品/法术/任务等类型）
     if _G.TooltipDataProcessor and _G.TooltipDataProcessor.AddTooltipPostCall then
         for _, enumValue in pairs(_G.Enum.TooltipDataType) do
             if type(enumValue) == "number" then
@@ -218,6 +231,9 @@ function mod:Init()
             end
         end
     end
+
+    -- Unit 补充路径：hooksecurefunc(SetUnit) — 直接从 UnitGUID 获取 NPC ID
+    RegisterUnitHook()
 
     -- 斜杠命令（Bug#4 修复：nil guard）
     _G.SLASH_LORISID1 = "/lid"

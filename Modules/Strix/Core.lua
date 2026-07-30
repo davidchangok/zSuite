@@ -376,12 +376,11 @@ function mod:BuildOptions(content)
                 altRows[i] = row
             end
             row.altIndex = i
-            local colorStr = "|cFFFFFFFF"
-            if alt.classFile then
-                local c = _G.C_ClassColor and _G.C_ClassColor.GetClassColor and _G.C_ClassColor.GetClassColor(alt.classFile)
-                if c then colorStr = "|c" .. c:GenerateHexColor() end
+            local colorWrap = alt.name or "?"
+            if alt.classFile and _G.RAID_CLASS_COLORS and _G.RAID_CLASS_COLORS[alt.classFile] then
+                colorWrap = zUI.WrapColor(_G.RAID_CLASS_COLORS[alt.classFile].colorStr, alt.name or "?")
             end
-            local nameStr = colorStr .. (alt.name or "?") .. "|r"
+            local nameStr = colorWrap
             local realmStr = alt.realm and (" |cFF888888(" .. alt.realm .. ")|r") or ""
             local levelStr = L.LEVEL_FORMAT and string.format(L.LEVEL_FORMAT, alt.level or 0) or ("Lv." .. (alt.level or "?"))
             row.text:SetText(nameStr .. realmStr .. "  " .. levelStr)
