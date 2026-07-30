@@ -52,8 +52,7 @@ local function CreateMainFrame()
     local titleBar = zUI.TitleBar(mainFrame, 24)
     zUI.SetupDrag(mainFrame, titleBar, "phasewatcher")
 
-    -- 关闭按钮 —— 设 showFrame = false 后隐藏，与原始 /pw hide 行为一致
-    -- Bug#4 修复: 原关闭按钮只 Hide() 不改 showFrame，导致 PEW 重载后窗口永久消失
+    -- 关闭按钮
     local closeBtn = zUI.CloseButton(titleBar, function()
         local d = GetDB()
         if d then d.showFrame = false end
@@ -63,7 +62,7 @@ local function CreateMainFrame()
     -- 顶部强调线
     zUI.TopAccent(mainFrame, 0.20, 0.66, 0.63)
 
-    -- 位面 ID 文字 —— 初始文字避免空窗口
+    -- 位面 ID 文字
     phaseText = mainFrame:CreateFontString(nil, "OVERLAY")
     phaseText:SetFont(zUI.GetDefaultFontTexture(), db.fontSize or 16, zUI.GetFontFlags())
     phaseText:SetPoint("CENTER", mainFrame, "CENTER", 0, -2)
@@ -78,15 +77,12 @@ local function CreateMainFrame()
         end
     end)
 
-    -- 恢复位置
-    zUI.RestoreFramePos(mainFrame, "phasewatcher", 0, -200)
+    -- 定位到屏幕中央（不使用 RestoreFramePos，避免 zUI 布局回调链中的静默失败）
+    mainFrame:ClearAllPoints()
+    mainFrame:SetPoint("CENTER", _G.UIParent, "CENTER", 0, 0)
 
-    -- 拖动结束保存位置
-    local origDragStop = titleBar:GetScript("OnDragStop")
-    titleBar:SetScript("OnDragStop", function()
-        if origDragStop then origDragStop() end
-        zUI.SaveFramePos(mainFrame, "phasewatcher")
-    end)
+    -- 立刻显示窗口（InitializeUI 中 UpdateFrameVisibility 会做最终确认）
+    mainFrame:Show()
 
     return mainFrame
 end
