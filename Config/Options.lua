@@ -303,28 +303,9 @@ function zSuite.OpenOptions()
 end
 
 -- ============================================================
---  注册到 Blizzard Settings（可选，Interface Options → AddOns）
+--  注册到 Blizzard Settings —— 已移除
+--  原因: RegisterCanvasLayoutCategory("zSuite", "zSuite") 的第二个参数
+--  被 Blizzard 当作全局 frame 名称，查找 _G["zSuite"] 失败导致
+--  Blizzard_SettingsPanel.lua:898 attempt to call a nil value。
+--  zSuite 使用 /zsuite 命令打开自定义选项面板，无需 Blizzard 集成。
 -- ============================================================
-local function RegisterToBlizzardSettings()
-    if not _G.Settings or not _G.Settings.RegisterCanvasLayoutCategory then return end
-
-    local category, layout = _G.Settings.RegisterCanvasLayoutCategory("zSuite", "zSuite")
-    if not category then return end
-
-    category.Name = "zSuite"
-
-    -- 注册到 Settings
-    _G.Settings.RegisterAddOnCategory(category)
-
-    zSuite.blizzardCategoryID = category:GetID()
-end
-
--- 在 ADDON_LOADED 时执行注册
-local eventFrame = CreateFrame("Frame")
-eventFrame:RegisterEvent("ADDON_LOADED")
-eventFrame:SetScript("OnEvent", function(_, event, arg1)
-    if event == "ADDON_LOADED" and arg1 == addonName then
-        RegisterToBlizzardSettings()
-        eventFrame:UnregisterEvent("ADDON_LOADED")
-    end
-end)
