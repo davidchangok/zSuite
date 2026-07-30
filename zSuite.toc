@@ -37,8 +37,8 @@ Modules\LorisID\ItemQuery.lua
 Modules\LorisID\Core.lua
 
 # === Strix 模块 ===
-Modules\Strix\DataManager.lua
 Modules\Strix\Core.lua
+Modules\Strix\DataManager.lua
 
 # === PhaseWatcher 模块 ===
 Modules\PhaseWatcher\Core.lua

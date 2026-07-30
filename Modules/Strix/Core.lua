@@ -27,7 +27,6 @@ local mod = {
 zSuite.RegisterModule("strix", mod)
 
 local L = mod.L or _G.zSuiteStrix_L
-local Data = mod.Data
 
 -- ============================================================
 --  图标辅助函数
@@ -79,10 +78,10 @@ end
 --  上下文菜单
 -- ============================================================
 local function BuildMenu(rootDescription)
-    local alts = Data:GetAlts()
-    local recent = Data:GetRecentRecipients()
-    local altLimit = Data:GetDisplayLimit()
-    local recentLimit = Data:GetRecentDisplayLimit()
+    local alts = mod.Data:GetAlts()
+    local recent = mod.Data:GetRecentRecipients()
+    local altLimit = mod.Data:GetDisplayLimit()
+    local recentLimit = mod.Data:GetRecentDisplayLimit()
 
     -- My Alts
     rootDescription:CreateTitle(L.HEADER_MY_ALTS)
@@ -193,7 +192,7 @@ local function OnMailSent()
     if not text or text == "" then return end
     local name, realm = string.match(text, "^([^%-]+)%-?(.*)$")
     if name then
-        Data:AddRecentRecipient(name, realm ~= "" and realm or _G.GetRealmName())
+        mod.Data:AddRecentRecipient(name, realm ~= "" and realm or _G.GetRealmName())
     end
 end
 
@@ -215,8 +214,8 @@ local function CheckInboxForAlts()
             local realm = string.match(senderName, "%-(.+)$")
             local key = (name and name:gsub("%s+", ""):lower() or "") .. "-" ..
                         (realm and realm:gsub("%s+", ""):lower() or _G.GetRealmName and _G.GetRealmName():gsub("%s+", ""):lower() or "")
-            if Data:IsMyAlt(key) then
-                Data:PromoteAltToFirst(key)
+            if mod.Data:IsMyAlt(key) then
+                mod.Data:PromoteAltToFirst(key)
                 break  -- 每次只提升一个
             end
         end
@@ -232,10 +231,10 @@ eventFrame:SetScript("OnEvent", function(_, event, ...)
     if event == "ADDON_LOADED" then
         -- 等待 zSuite DB 就绪
     elseif event == "PLAYER_LOGIN" then
-        Data:RegisterCurrentCharacter()
+        mod.Data:RegisterCurrentCharacter()
     elseif event == "MAIL_SHOW" then
         HookMailBox()
-        Data:RegisterCurrentCharacter()
+        mod.Data:RegisterCurrentCharacter()
     elseif event == "MAIL_SEND_SUCCESS" then
         OnMailSent()
     elseif event == "MAIL_INBOX_UPDATE" then
@@ -283,14 +282,14 @@ function mod:BuildOptions(content)
     yOff = yOff - 8
     yOff = zUI.OptionsSlider(content, yOff, "小号显示数量", 1, 99, 1,
         function() return db.displayLimit end,
-        function(v) Data:SetDisplayLimit(v) end
+        function(v) mod.Data:SetDisplayLimit(v) end
     )
     yOff = zUI.OptionsSlider(content, yOff, "最近收件人数量", 1, 50, 1,
         function() return db.recentDisplayLimit end,
-        function(v) Data:SetRecentDisplayLimit(v) end
+        function(v) mod.Data:SetRecentDisplayLimit(v) end
     )
     yOff = zUI.OptionsCheckbox(content, yOff, "成为小号时自动移除",
         function() return db.autoRemoveIfAlt end,
-        function(v) Data:SetAutoRemoveIfAlt(v) end
+        function(v) mod.Data:SetAutoRemoveIfAlt(v) end
     )
 end
