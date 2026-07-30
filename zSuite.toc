@@ -1,0 +1,45 @@
+## Interface: 120000, 120001, 120005
+## Title: zSuite
+## Title-zhCN: zSuite 整合插件套件
+## Title-zhTW: zSuite 整合插件套件
+## Notes: Integrated addon suite with LorisID, Strix, and PhaseWatcher modules.
+## Notes-zhCN: 整合插件套件：LorisID 工具提示、Strix 邮件助手、PhaseWatcher 位面监测。
+## Notes-zhTW: 整合插件套件：LorisID 工具提示、Strix 郵件助手、PhaseWatcher 位面監測。
+## Version: 1.0.0
+## Author: David W Zhang
+## Icon: Interface\Icons\inv_summerfest_symbol_owl
+## SavedVariables: zSuiteDB
+## OptionalDeps: LibSharedMedia-3-0
+
+# === zUI 底层库 ===
+zUI\Util.lua
+zUI\Security.lua
+zUI\Core.lua
+zUI\Theme.lua
+zUI\ScrollBar.lua
+zUI\CardLayout.lua
+zUI\OptionsBuilder.lua
+
+# === zSuite 顶层 ===
+Core.lua
+Config\Options.lua
+
+# === 模块 Locales ===
+Modules\LorisID\Locale.lua
+Modules\Strix\Locale.lua
+Modules\PhaseWatcher\Locale.lua
+
+# === LorisID 模块 ===
+Modules\LorisID\Cache.lua
+Modules\LorisID\AsyncLoader.lua
+Modules\LorisID\AuraScanner.lua
+Modules\LorisID\ItemQuery.lua
+Modules\LorisID\Core.lua
+
+# === Strix 模块 ===
+Modules\Strix\DataManager.lua
+Modules\Strix\Core.lua
+
+# === PhaseWatcher 模块 ===
+Modules\PhaseWatcher\Core.lua
+Modules\PhaseWatcher\UI.lua

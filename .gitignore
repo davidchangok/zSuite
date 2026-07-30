@@ -1,0 +1,19 @@
+# WoW saved variables (contains user account data)
+WTF/
+SavedVariables/
+
+# IDE / Editor
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Build artifacts (if any)
+*.zip
+*.rar
+dist/

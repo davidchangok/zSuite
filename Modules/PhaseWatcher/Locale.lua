@@ -1,0 +1,123 @@
+--[[
+    PhaseWatcher Locale — enUS + zhCN
+    从原 PhaseWatcher 3 语言本地化精简为仅保留英文和简体中文（移除 zhTW）。
+--]]
+
+local addonName, addonTable = ...
+
+local zSuite = _G.zSuite
+if not zSuite then return end
+
+local L = setmetatable({}, { __index = function(t, k) return k end })
+
+-- enUS (default)
+L.ADDON_LOADED          = "PhaseWatcher loaded. Type /pw for help."
+L.PHASE_MONITOR         = "Phase Monitor"
+L.INITIALIZING          = "Initializing..."
+L.NOT_DETECTED          = "Not Detected"
+L.SECRET_VALUE          = "Secret Value"
+L.CACHED                = "Cached"
+L.INSTANCE_LIMITED      = "Instance Limited"
+L.SOURCE_MOUSEOVER      = "Mouseover"
+L.SOURCE_TARGET         = "Target"
+L.SOURCE_PLAYER         = "Player"
+L.SOURCE_FOCUS          = "Focus"
+L.SOURCE_CACHED         = "Cached"
+L.SOURCE_UNKNOWN        = "Unknown"
+L.WINDOW_STANDARD       = "Standard"
+L.WINDOW_TOOLTIP        = "Tooltip"
+L.WINDOW_FLAT           = "Flat"
+L.WINDOW_NONE           = "None"
+L.FONT_SYSTEM           = "System"
+L.FONT_CHAT             = "Chat"
+L.FONT_DAMAGE           = "Combat Text"
+L.SETTINGS_GENERAL      = "General"
+L.SETTINGS_APPEARANCE   = "Appearance"
+L.SETTINGS_SHOW_FRAME   = "Show Window"
+L.SETTINGS_SHOW_TOOLTIP = "Show Tooltip"
+L.SETTINGS_LOCK_FRAME   = "Lock Window"
+L.SETTINGS_HEX_FORMAT   = "Hexadecimal Display"
+L.SETTINGS_AUTO_HIDE    = "Auto-hide in Combat"
+L.SETTINGS_UPDATE_INT   = "Update Interval (s)"
+L.SETTINGS_FONT_SIZE    = "Font Size"
+L.SETTINGS_WINDOW_ALPHA = "Window Alpha"
+L.SETTINGS_FONT_FACE    = "Font"
+L.SETTINGS_WINDOW_STYLE = "Window Style"
+L.SETTINGS_BG_COLOR     = "Background Color"
+L.SETTINGS_BORDER_COLOR = "Border Color"
+L.SETTINGS_RESET_POS    = "Reset Position"
+L.CMD_TOGGLE            = "Toggle window"
+L.CMD_SHOW              = "Show window"
+L.CMD_HIDE              = "Hide window"
+L.CMD_RESET             = "Reset position"
+L.CMD_CLEAR             = "Clear cache"
+L.CMD_HEX               = "Switch to hexadecimal"
+L.CMD_DEC               = "Switch to decimal"
+L.CMD_LOCK              = "Toggle lock"
+L.CMD_CONFIG            = "Open settings"
+L.CMD_DEBUG             = "Toggle debug"
+L.CMD_HELP              = "Commands: show | hide | reset | clear | hex | dec | lock | config | debug"
+L.CLEAR_CACHE_DONE      = "Cache cleared."
+L.RESET_POS_DONE        = "Position reset."
+L.NOT_INITIALIZED       = "Not initialized yet."
+L.DRAG_HINT             = "Drag to move"
+
+-- zhCN
+if _G.GetLocale() == "zhCN" then
+    L.ADDON_LOADED          = "PhaseWatcher 已加载。输入 /pw 查看帮助。"
+    L.PHASE_MONITOR         = "位面监视"
+    L.INITIALIZING          = "初始化中..."
+    L.NOT_DETECTED          = "未检测到"
+    L.SECRET_VALUE          = "秘密值"
+    L.CACHED                = "缓存"
+    L.INSTANCE_LIMITED      = "副本限制"
+    L.SOURCE_MOUSEOVER      = "鼠标指向"
+    L.SOURCE_TARGET         = "目标"
+    L.SOURCE_PLAYER         = "玩家"
+    L.SOURCE_FOCUS          = "焦点"
+    L.SOURCE_CACHED         = "缓存"
+    L.SOURCE_UNKNOWN        = "未知"
+    L.WINDOW_STANDARD       = "标准"
+    L.WINDOW_TOOLTIP        = "提示框"
+    L.WINDOW_FLAT           = "无边框"
+    L.WINDOW_NONE           = "无背景"
+    L.FONT_SYSTEM           = "系统字体"
+    L.FONT_CHAT             = "聊天字体"
+    L.FONT_DAMAGE           = "战斗字体"
+    L.SETTINGS_GENERAL      = "常规设置"
+    L.SETTINGS_APPEARANCE   = "外观设置"
+    L.SETTINGS_SHOW_FRAME   = "显示窗口"
+    L.SETTINGS_SHOW_TOOLTIP = "显示鼠标提示"
+    L.SETTINGS_LOCK_FRAME   = "锁定窗口"
+    L.SETTINGS_HEX_FORMAT   = "十六进制显示"
+    L.SETTINGS_AUTO_HIDE    = "战斗中自动隐藏"
+    L.SETTINGS_UPDATE_INT   = "更新间隔（秒）"
+    L.SETTINGS_FONT_SIZE    = "字体大小"
+    L.SETTINGS_WINDOW_ALPHA = "窗口透明度"
+    L.SETTINGS_FONT_FACE    = "字体"
+    L.SETTINGS_WINDOW_STYLE = "窗口风格"
+    L.SETTINGS_BG_COLOR     = "背景颜色"
+    L.SETTINGS_BORDER_COLOR = "边框颜色"
+    L.SETTINGS_RESET_POS    = "重置位置"
+    L.CMD_TOGGLE            = "切换窗口显示"
+    L.CMD_SHOW              = "显示窗口"
+    L.CMD_HIDE              = "隐藏窗口"
+    L.CMD_RESET             = "重置位置"
+    L.CMD_CLEAR             = "清除缓存"
+    L.CMD_HEX               = "切换到十六进制"
+    L.CMD_DEC               = "切换到十进制"
+    L.CMD_LOCK              = "切换锁定"
+    L.CMD_CONFIG            = "打开设置"
+    L.CMD_DEBUG             = "切换调试"
+    L.CMD_HELP              = "命令：show | hide | reset | clear | hex | dec | lock | config | debug"
+    L.CLEAR_CACHE_DONE      = "缓存已清除。"
+    L.RESET_POS_DONE        = "位置已重置。"
+    L.NOT_INITIALIZED       = "尚未初始化。"
+    L.DRAG_HINT             = "拖动以移动"
+end
+
+if zSuite.modules and zSuite.modules.phasewatcher then
+    zSuite.modules.phasewatcher.L = L
+end
+
+_G.zSuitePhaseWatcher_L = L
