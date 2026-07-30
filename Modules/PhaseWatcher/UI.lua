@@ -1,18 +1,6 @@
 --[[
     PhaseWatcher/UI.lua — 位面 ID 显示窗口
-    基于 zUI 完全重建，替换原 PhaseWatcher 2.1.0 的 834 行 UI.lua。
-
-    Bug 修复：
-    #1 (高危) — Lua 5.1 闭包变量复用：使用工厂函数模式捕获循环变量
-    #3 — 硬编码像素常量 → zUI 动态字号驱动
-    #4 — 窗口不显示: 关闭按钮 Hide() 不改 showFrame → 永远隐藏; PEW 不恢复可见性
-         修复: closeBtn 设 showFrame=false; ADDON_LOADED 自初始化; PEW 恢复可见性; 初始文字
-
-    窗口风格映射 (Standard/Tooltip/Flat/None → zUI SurfaceVariant)：
-    - Standard → PANEL
-    - Tooltip  → RAISED
-    - Flat     → SOFT
-    - None     → BASE (仅文字，背景完全透明)
+    一个简单的可拖动窗口：居中显示、拖动保存位置、右键菜单。
 --]]
 
 local addonName, addonTable = ...
@@ -25,103 +13,97 @@ if not mod then return end
 
 local L = mod.L or _G.zSuitePhaseWatcher_L
 
+local mainFrame, phaseText
+
 -- ============================================================
---  内部
+--  快速 DB 访问
 -- ============================================================
-local GetDB do
-    GetDB = function()
-        if not zSuite.db or not zSuite.db.modules then return nil end
+local function DB()
+    if zSuite.db and zSuite.db.modules then
         return zSuite.db.modules.phasewatcher
     end
 end
 
 -- ============================================================
---  主窗口创建
+--  创建窗口
 -- ============================================================
-local mainFrame, phaseText
+local function CreateWindow()
+    local db = DB()
+    if not db then return end
 
-local function CreateMainFrame()
-    local db = GetDB()
-    if not db then return nil end
-
-    mainFrame = zUI.StyledFrame(nil, nil, "LOW", 15)
+    -- zUI 暗色风格窗体
+    mainFrame = zUI.StyledFrame(nil, nil, "HIGH", 50)
     mainFrame:SetSize(220, 60)
-    mainFrame:SetMinResize(120, 32)
+    mainFrame:SetMovable(true)
+    mainFrame:RegisterForDrag("LeftButton")
+    mainFrame:SetClampedToScreen(true)
 
-    -- 标题栏（可拖动）
-    local titleBar = zUI.TitleBar(mainFrame, 24)
-    zUI.SetupDrag(mainFrame, titleBar, "phasewatcher")
+    -- 标题栏
+    local titleBar = zUI.TitleBar(mainFrame, 22)
 
     -- 关闭按钮
-    local closeBtn = zUI.CloseButton(titleBar, function()
-        local d = GetDB()
-        if d then d.showFrame = false end
+    zUI.CloseButton(titleBar, function()
+        db.showFrame = false
         mainFrame:Hide()
     end)
 
-    -- 顶部强调线
+    -- 顶部绿线
     zUI.TopAccent(mainFrame, 0.20, 0.66, 0.63)
 
-    -- 位面 ID 文字
+    -- 文字
     phaseText = mainFrame:CreateFontString(nil, "OVERLAY")
-    phaseText:SetFont(zUI.GetDefaultFontTexture(), db.fontSize or 16, zUI.GetFontFlags())
-    phaseText:SetPoint("CENTER", mainFrame, "CENTER", 0, -2)
+    phaseText:SetPoint("CENTER")
     phaseText:SetJustifyH("CENTER")
-    phaseText:SetText(L.INITIALIZING or "Initializing...")
-    phaseText:SetTextColor(0.5, 0.5, 0.5)
 
     -- 右键菜单
     mainFrame:SetScript("OnMouseDown", function(self, button)
-        if button == "RightButton" then
-            ShowContextMenu(self)
+        if button == "RightButton" and _G.MenuUtil then
+            _G.MenuUtil.CreateContextMenu(self, function(root)
+                local d = DB()
+                if not d then return end
+                root:CreateCheckbox(L.SETTINGS_HEX_FORMAT, d.useHexadecimal, function() mod:ToggleFormat() end)
+                root:CreateCheckbox(L.SETTINGS_LOCK_FRAME, d.isLocked, function() mod:ToggleLock() end)
+                root:CreateDivider()
+                root:CreateButton(L.CMD_CLEAR, function() mod:ClearCache() end)
+                root:CreateButton(L.SETTINGS_RESET_POS, function()
+                    mainFrame:ClearAllPoints()
+                    mainFrame:SetPoint("CENTER", _G.UIParent, "CENTER", 0, 0)
+                    db.posX = nil; db.posY = nil
+                end)
+                root:CreateDivider()
+                root:CreateButton(L.CMD_CONFIG, function()
+                    if zSuite.OpenOptions then zSuite.OpenOptions() end
+                end)
+            end)
         end
     end)
 
-    -- 定位到屏幕中央（不使用 RestoreFramePos，避免 zUI 布局回调链中的静默失败）
-    mainFrame:ClearAllPoints()
-    mainFrame:SetPoint("CENTER", _G.UIParent, "CENTER", 0, 0)
-
-    -- 立刻显示窗口（InitializeUI 中 UpdateFrameVisibility 会做最终确认）
-    mainFrame:Show()
-
-    return mainFrame
-end
-
--- ============================================================
---  右键菜单（保留 12.0 MenuUtil API）
--- ============================================================
-local function ShowContextMenu(owner)
-    if not _G.MenuUtil then return end
-
-    _G.MenuUtil.CreateContextMenu(owner, function(root)
-        local db = GetDB()
-        if not db then return end
-
-        -- 十六进制切换
-        root:CreateCheckbox(L.SETTINGS_HEX_FORMAT, db.useHexadecimal, function()
-            mod:ToggleFormat()
-        end)
-
-        -- 锁定
-        root:CreateCheckbox(L.SETTINGS_LOCK_FRAME, db.isLocked, function()
-            mod:ToggleLock()
-        end)
-
-        root:CreateDivider()
-
-        -- 清除缓存
-        root:CreateButton(L.CMD_CLEAR, function() mod:ClearCache() end)
-
-        -- 重置位置
-        root:CreateButton(L.SETTINGS_RESET_POS, function() mod:ResetPosition() end)
-
-        root:CreateDivider()
-
-        -- 打开设置
-        root:CreateButton(L.CMD_CONFIG, function()
-            if zSuite.OpenOptions then zSuite.OpenOptions() end
-        end)
+    -- 拖动：保存位置到 DB
+    mainFrame:SetScript("OnDragStart", function()
+        if not db.isLocked then mainFrame:StartMoving() end
     end)
+    mainFrame:SetScript("OnDragStop", function()
+        mainFrame:StopMovingOrSizing()
+        local x, y = mainFrame:GetCenter()
+        local cx, cy = _G.UIParent:GetCenter()
+        if x and cx then
+            db.posX = math.floor(x - cx)
+            db.posY = math.floor(y - cy)
+        end
+    end)
+
+    -- 恢复保存的位置，否则居中
+    mainFrame:ClearAllPoints()
+    if db.posX and db.posY then
+        mainFrame:SetPoint("CENTER", _G.UIParent, "CENTER", db.posX, db.posY)
+    else
+        mainFrame:SetPoint("CENTER", _G.UIParent, "CENTER", 0, 0)
+    end
+
+    -- 锁定状态
+    if db.isLocked then mainFrame:SetMovable(false) end
+
+    mainFrame:Show()
 end
 
 -- ============================================================
@@ -129,115 +111,60 @@ end
 -- ============================================================
 function mod:UpdateUI()
     if not mainFrame or not phaseText then return end
-    local db = GetDB()
+    local db = DB()
     if not db then return end
 
-    local phaseID = mod:GetPhaseID()
-    local source = mod:GetPhaseSource()
-    local isSecret = mod:IsSecretValue()
+    local id, src, secret = mod:GetPhaseID(), mod:GetPhaseSource(), mod:IsSecretValue()
+    local text, r, g, b
 
-    local displayText
-    local r, g, b = 0.5, 0.5, 0.5  -- 默认灰色
-
-    if isSecret then
-        displayText = "|cFFFF6600" .. (L.SECRET_VALUE or "Hidden") .. "|r"
-        r, g, b = 1.0, 0.4, 0.0
-    elseif phaseID then
-        local formatted = mod:FormatPhaseID(phaseID, db.useHexadecimal)
-        displayText = "|cFF33FF99Phase: " .. formatted .. "|r"
-        r, g, b = 0.20, 1.0, 0.60
-    elseif source == "cached" then
-        displayText = "|cFF888888" .. (L.CACHED or "Cached") .. "|r"
+    if secret then
+        text = L.SECRET_VALUE or "Hidden"
+        r, g, b = 1, 0.4, 0
+    elseif id then
+        text = "Phase: " .. mod:FormatPhaseID(id, db.useHexadecimal)
+        r, g, b = 0.20, 1, 0.60
+    elseif src == "cached" then
+        text = L.CACHED or "Cached"
         r, g, b = 0.5, 0.5, 0.5
     else
-        displayText = "|cFFFF4444" .. (L.NOT_DETECTED or "Not Detected") .. "|r"
-        r, g, b = 1.0, 0.27, 0.27
+        text = L.NOT_DETECTED or "Not Detected"
+        r, g, b = 1, 0.27, 0.27
     end
 
-    phaseText:SetText(displayText)
+    phaseText:SetFont(zUI.GetDefaultFontTexture(), db.fontSize or 16, zUI.GetFontFlags())
+    phaseText:SetText(text)
     phaseText:SetTextColor(r, g, b)
 
-    -- 自适应窗口大小
-    local textW = phaseText:GetStringWidth()
-    if textW and textW > 0 then
-        mainFrame:SetWidth(math.max(140, textW + 40))
-    end
+    local w = phaseText:GetStringWidth()
+    if w and w > 0 then mainFrame:SetWidth(math.max(140, w + 40)) end
 end
 
 function mod:UpdateFrameVisibility()
     if not mainFrame then return end
-    local db = GetDB()
+    local db = DB()
     if not db then return end
-
-    if not db.showFrame then
-        mainFrame:Hide()
-        return
-    end
-
-    local inCombat = _G.InCombatLockdown and _G.InCombatLockdown()
-    if db.autoHideInCombat and inCombat then
-        mainFrame:Hide()
-        return
-    end
-
+    if not db.showFrame then mainFrame:Hide(); return end
+    if db.autoHideInCombat and _G.InCombatLockdown and _G.InCombatLockdown() then mainFrame:Hide(); return end
     mainFrame:Show()
 end
 
 function mod:UpdateFrameLock()
-    if not mainFrame then return end
-    local db = GetDB()
-    if not db then return end
-    mainFrame:SetMovable(not db.isLocked)
-end
-
-function mod:UpdateAppearance()
-    if not mainFrame or not phaseText then return end
-    local db = GetDB()
-    if not db then return end
-
-    -- 窗口风格 → zUI SurfaceVariant 映射
-    local variantMap = {
-        Standard = "PANEL",
-        Tooltip = "RAISED",
-        Flat = "SOFT",
-        None = "BASE",
-    }
-    local variant = variantMap[db.windowStyle or "Standard"] or "PANEL"
-
-    -- 应用表面
-    if db.windowStyle == "None" then
-        zUI.ApplySurface(mainFrame, "BASE", 0)
-    else
-        zUI.ApplySurface(mainFrame, variant, db.windowAlpha)
-    end
-
-    -- 字体
-    phaseText:SetFont(zUI.GetDefaultFontTexture(), db.fontSize or 16, zUI.GetFontFlags())
-
-    mod:UpdateUI()
+    if mainFrame then mainFrame:SetMovable(not (DB() and DB().isLocked)) end
 end
 
 function mod:ResetFramePosition()
     if not mainFrame then return end
     mainFrame:ClearAllPoints()
-    mainFrame:SetPoint("CENTER", _G.UIParent, "CENTER", 0, -200)
-    zUI.SaveFramePos(mainFrame, "phasewatcher")
+    mainFrame:SetPoint("CENTER", _G.UIParent, "CENTER", 0, 0)
+    local db = DB(); if db then db.posX = nil; db.posY = nil end
 end
 
 -- ============================================================
---  初始化 (公开 — 由 Core.lua 的 ADDON_LOADED 调用)
+--  初始化
 -- ============================================================
 function mod:InitializeUI()
-    local db = GetDB()
-    if not db or not db.showFrame then return end
-
-    if not mainFrame then
-        CreateMainFrame()
-    end
-
-    if mainFrame then
-        mod:UpdateAppearance()
+    if DB() and DB().showFrame and not mainFrame then
+        CreateWindow()
         mod:UpdateUI()
-        mod:UpdateFrameVisibility()
     end
 end
