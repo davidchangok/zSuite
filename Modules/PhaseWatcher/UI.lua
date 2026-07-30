@@ -100,7 +100,8 @@ local function CreateWindow()
         mainFrame:SetPoint("CENTER", _G.UIParent, "CENTER", 0, 0)
     end
 
-    -- 锁定状态
+    -- 透明度与锁定
+    mainFrame:SetAlpha(db.windowAlpha or 1.0)
     if db.isLocked then mainFrame:SetMovable(false) end
 
     mainFrame:Show()
@@ -150,6 +151,13 @@ end
 
 function mod:UpdateFrameLock()
     if mainFrame then mainFrame:SetMovable(not (DB() and DB().isLocked)) end
+end
+
+function mod:UpdateAppearance()
+    if mainFrame then
+        local db = DB()
+        if db then mainFrame:SetAlpha(db.windowAlpha or 1.0) end
+    end
 end
 
 function mod:ResetFramePosition()

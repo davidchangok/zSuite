@@ -245,7 +245,10 @@ local function BuildPhaseWatcherTab(content)
     )
     yOff = zUI.OptionsSlider(content, yOff, "窗口透明度", 0.1, 1.0, 0.1,
         function() return cfg.windowAlpha end,
-        function(v) cfg.windowAlpha = v end
+        function(v)
+            cfg.windowAlpha = v
+            if mod and mod.UpdateAppearance then mod:UpdateAppearance() end
+        end
     )
 end
 
