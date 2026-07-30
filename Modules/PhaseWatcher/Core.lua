@@ -422,11 +422,13 @@ function mod:BuildOptions(content)
         if db.fontFace == f.path then fontIdx = i; break end
     end
 
-    local _, fontBtn = zUI.OptionsBtn(content, yOff - 2, FONTS[fontIdx].name, function()
+    -- fontBtn 必须分两行声明：WoW Lua 5.1 不识别 local _, btn = f() 的 btn 闭包捕获
+    local fontBtn
+    fontBtn = select(2, zUI.OptionsBtn(content, yOff - 2, FONTS[fontIdx].name, function()
         fontIdx = fontIdx % #FONTS + 1
         db.fontFace = FONTS[fontIdx].path
-        if fontBtn._label then fontBtn._label:SetText(FONTS[fontIdx].name) end
+        if fontBtn and fontBtn._label then fontBtn._label:SetText(FONTS[fontIdx].name) end
         if mod.UpdateAppearance then mod:UpdateAppearance() end
-    end, 140, 64)
+    end, 140, 64))
     yOff = yOff - 28
 end
