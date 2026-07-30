@@ -293,6 +293,11 @@ function mod:BuildOptions(content)
         function() return db.debugMode end,
         function(v) db.debugMode = v end
     )
+    yOff = zUI.OptionsCheckbox(content, yOff, "显示图标 ID",
+        function() return db.showIcons end,
+        function(v) db.showIcons = v end,
+        "物品提示中显示关联图标 ID"
+    )
 
     zUI.OptionsDivider(content, yOff, 0)
     yOff = yOff - 8

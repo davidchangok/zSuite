@@ -145,8 +145,6 @@ local function UpdatePhaseID()
         if phaseID then
             currentPhaseID = phaseID
             currentPhaseSource = source
-            db.lastPhaseID = phaseID
-            db.lastPhaseSource = source
         end
     end
 
@@ -344,6 +342,10 @@ function mod:BuildOptions(content)
 
     local yOff = -4
 
+    yOff = zUI.OptionsCheckbox(content, yOff, "启用 PhaseWatcher",
+        function() return db.enabled end,
+        function(v) db.enabled = v end
+    )
     yOff = zUI.OptionsCheckbox(content, yOff, "显示窗口",
         function() return db.showFrame end,
         function(v) db.showFrame = v; if mod.UpdateFrameVisibility then mod:UpdateFrameVisibility() end end
