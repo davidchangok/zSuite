@@ -993,6 +993,7 @@ function zUI.OptionsColorSwatch(parent, r, g, b, onPick, onReset, tooltip)
                         local newR, newG, newB = _G.ColorPickerFrame:GetColorRGB()
                         r, g, b = newR, newG, newB
                         UpdateFill()
+                        if onPick then onPick(r, g, b) end
                     end,
                     cancelFunc = function(previousValues)
                         r, g, b = previousValues.r, previousValues.g, previousValues.b
@@ -1008,8 +1009,8 @@ function zUI.OptionsColorSwatch(parent, r, g, b, onPick, onReset, tooltip)
         end
     end)
 
-    -- 完成选择后的确认回调（ColorPickerFrame 关闭时触发）
-    swatch:SetScript("OnMouseUp", function()
+    -- 双击色块直接确认（不开色盘）
+    swatch:SetScript("OnDoubleClick", function()
         if onPick then onPick(r, g, b) end
     end)
 
