@@ -357,17 +357,24 @@ function mod:BuildOptions(content)
         function() return db.autoHideInCombat end,
         function(v) db.autoHideInCombat = v end
     )
-
+    yOff = zUI.OptionsCheckbox(content, yOff, "无窗体",
+        function() return db.frameless end,
+        function(v)
+            db.frameless = v
+            if mod.UpdateFrameless then mod:UpdateFrameless() end
+        end,
+        "隐藏标题栏和关闭按钮，仅保留位面 ID 文字"
+    )
     yOff = zUI.OptionsSlider(content, yOff, "更新间隔 (秒)", 0.1, 5.0, 0.1,
         function() return db.updateInterval end,
         function(v) mod:SetUpdateInterval(v) end
     )
-    yOff = zUI.OptionsSlider(content, yOff, "窗口透明度", 0.1, 1.0, 0.1,
+    yOff = zUI.OptionsSlider(content, yOff, "窗口透明度", 0, 1.0, 0.1,
         function() return db.windowAlpha end,
         function(v) db.windowAlpha = v; if mod.UpdateAppearance then mod:UpdateAppearance() end end,
         "窗口背景透明度（仅背景，文字不受影响）"
     )
-    yOff = zUI.OptionsSlider(content, yOff, "信息透明度", 0.1, 1.0, 0.1,
+    yOff = zUI.OptionsSlider(content, yOff, "信息透明度", 0, 1.0, 0.1,
         function() return db.textAlpha or 1.0 end,
         function(v) db.textAlpha = v; if mod.UpdateUI then mod:UpdateUI() end end,
         "仅文字透明度（背景保持不透明）"

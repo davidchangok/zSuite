@@ -243,7 +243,15 @@ local function BuildPhaseWatcherTab(content)
         function() return cfg.autoHideInCombat end,
         function(v) cfg.autoHideInCombat = v end
     )
-    yOff = zUI.OptionsSlider(content, yOff, "窗口透明度", 0.1, 1.0, 0.1,
+    yOff = zUI.OptionsCheckbox(content, yOff, "无窗体",
+        function() return cfg.frameless end,
+        function(v)
+            cfg.frameless = v
+            if mod and mod.UpdateFrameless then mod:UpdateFrameless() end
+        end,
+        "隐藏标题栏和关闭按钮，仅保留位面 ID 文字"
+    )
+    yOff = zUI.OptionsSlider(content, yOff, "窗口透明度", 0, 1.0, 0.1,
         function() return cfg.windowAlpha end,
         function(v)
             cfg.windowAlpha = v
@@ -251,7 +259,7 @@ local function BuildPhaseWatcherTab(content)
         end,
         "窗口背景透明度（仅背景，文字不受影响）"
     )
-    yOff = zUI.OptionsSlider(content, yOff, "信息透明度", 0.1, 1.0, 0.1,
+    yOff = zUI.OptionsSlider(content, yOff, "信息透明度", 0, 1.0, 0.1,
         function() return cfg.textAlpha or 1.0 end,
         function(v)
             cfg.textAlpha = v

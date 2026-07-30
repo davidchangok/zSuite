@@ -13,7 +13,7 @@ if not mod then return end
 
 local L = mod.L or _G.zSuitePhaseWatcher_L
 
-local mainFrame, phaseText
+local mainFrame, phaseText, titleBar, closeBtn, accentLine
 
 -- ============================================================
 --  快速 DB 访问
@@ -39,16 +39,16 @@ local function CreateWindow()
     mainFrame:SetClampedToScreen(true)
 
     -- 标题栏
-    local titleBar = zUI.TitleBar(mainFrame, 22)
+    titleBar = zUI.TitleBar(mainFrame, 22)
 
     -- 关闭按钮
-    zUI.CloseButton(titleBar, function()
+    closeBtn = zUI.CloseButton(titleBar, function()
         db.showFrame = false
         mainFrame:Hide()
     end)
 
     -- 顶部绿线
-    zUI.TopAccent(mainFrame, 0.20, 0.66, 0.63)
+    accentLine = zUI.TopAccent(mainFrame, 0.20, 0.66, 0.63)
 
     -- 文字
     phaseText = mainFrame:CreateFontString(nil, "OVERLAY")
@@ -102,6 +102,10 @@ local function CreateWindow()
 
     -- 窗口背景透明度（仅背景，不影响文字）
     mainFrame:SetBackdropColor(zUI.COLORS.bg[1], zUI.COLORS.bg[2], zUI.COLORS.bg[3], db.windowAlpha or 1.0)
+    -- 无窗体
+    if db.frameless then
+        titleBar:Hide(); closeBtn:Hide(); accentLine:Hide()
+    end
     -- 锁定
     if db.isLocked then mainFrame:SetMovable(false) end
 
@@ -152,6 +156,21 @@ end
 
 function mod:UpdateFrameLock()
     if mainFrame then mainFrame:SetMovable(not (DB() and DB().isLocked)) end
+end
+
+function mod:UpdateFrameless()
+    if not mainFrame then return end
+    local db = DB()
+    if not db then return end
+    if db.frameless then
+        if titleBar then titleBar:Hide() end
+        if closeBtn then closeBtn:Hide() end
+        if accentLine then accentLine:Hide() end
+    else
+        if titleBar then titleBar:Show() end
+        if closeBtn then closeBtn:Show() end
+        if accentLine then accentLine:Show() end
+    end
 end
 
 function mod:UpdateAppearance()
