@@ -244,9 +244,7 @@ function mod:Init()
         local cmd = string.match(msg, "^(%S+)%s*(.*)$")
         cmd = cmd or msg:lower()
 
-        if cmd == "" or cmd == "config" then
-            if zSuite.OpenOptions then zSuite.OpenOptions() end
-        elseif cmd == "cache" then
+        if cmd == "cache" then
             mod.Cache:Clear()
             zUI.Print("LorisID 缓存已清除")
         elseif cmd == "debug" then
@@ -256,7 +254,7 @@ function mod:Init()
         elseif cmd == "version" then
             zUI.Print("zSuite LorisID v2.3.0-remastered")
         else
-            zUI.Print("/lid [config|cache|debug|version]")
+            zUI.Print("/lid [cache|debug|version]  设置请用 /zs")
         end
     end
 
