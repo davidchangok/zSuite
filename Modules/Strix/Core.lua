@@ -152,39 +152,55 @@ local function HookMailBox()
     if not _G.SendMailNameEditBox then return end
 
     isHooked = true
-
-    -- 下拉按钮
-    local dropdownBtn = CreateFrame("Button", nil, _G.SendMailNameEditBox)
-    dropdownBtn:SetSize(20, 20)
-    dropdownBtn:SetPoint("LEFT", _G.SendMailNameEditBox, "RIGHT", 2, 0)
-
-    local btnTex = dropdownBtn:CreateTexture(nil, "OVERLAY")
-    btnTex:SetAllPoints()
-    btnTex:SetColorTexture(0.10, 0.20, 0.30, 0.8)
-    dropdownBtn:SetScript("OnClick", ShowContextMenu)
-    dropdownBtn:SetScript("OnEnter", function()
-        btnTex:SetColorTexture(0.20, 0.66, 0.63, 0.9)
-    end)
-    dropdownBtn:SetScript("OnLeave", function()
-        btnTex:SetColorTexture(0.10, 0.20, 0.30, 0.8)
-    end)
-
-    -- 右键菜单
-    _G.SendMailNameEditBox:SetScript("OnMouseDown", function(self, button)
-        if button == "RightButton" then
-            ShowContextMenu()
+    -- 下拉按钮（按原 Strix 锚定到 SendMailFrame + SendMailNameEditBoxMiddle）
+    if not mod._dropdownBtn then
+        local btn = CreateFrame("Button", nil, _G.SendMailFrame)
+        btn:SetSize(20, 20)
+        btn:SetFrameLevel(_G.SendMailNameEditBox:GetFrameLevel() + 1)
+        local bg = btn:CreateTexture(nil, "BACKGROUND")
+        bg:SetAllPoints()
+        bg:SetColorTexture(0.15, 0.15, 0.15, 0.6)
+        btn:SetHighlightTexture("Interface\\Buttons\\UI-Common-MouseHilight", "ADD")
+        local arrow = btn:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+        arrow:SetPoint("CENTER")
+        arrow:SetText("\226\150\188")
+        arrow:SetTextColor(1, 0.82, 0)
+        btn:SetScript("OnClick", function() ShowContextMenu() end)
+        btn:SetScript("OnEnter", function()
+            local tip = GetOrCreateTooltip()
+            tip:SetOwner(btn, "ANCHOR_RIGHT")
+            tip:SetText(L.TOOLTIP_TITLE)
+            tip:Show()
+        end)
+        btn:SetScript("OnLeave", function()
+            local tip = GetOrCreateTooltip()
+            tip:Hide()
+        end)
+        mod._dropdownBtn = btn
+        local middle = _G.SendMailNameEditBoxMiddle or (_G.SendMailNameEditBox and _G.SendMailNameEditBox.Middle)
+        if middle then
+            btn:SetPoint("RIGHT", middle, "RIGHT", 24, 0)
+        else
+            local editW = _G.SendMailNameEditBox:GetWidth()
+            local _, rightInset = _G.SendMailNameEditBox:GetTextInsets()
+            btn:SetPoint("RIGHT", _G.SendMailNameEditBox, "LEFT", editW - (rightInset or 4), 0)
         end
+    end
+
+    -- 右键输入框弹出菜单
+    _G.SendMailNameEditBox:HookScript("OnMouseDown", function(_, button)
+        if button == "RightButton" then ShowContextMenu() end
     end)
 
-    -- 悬停提示
-    _G.SendMailNameEditBox:SetScript("OnEnter", function(self)
+    -- 悬停提示（使用私有 tooltip，避免污染 GameTooltip）
+    _G.SendMailNameEditBox:HookScript("OnEnter", function(self)
         local tip = GetOrCreateTooltip()
-        tip:SetOwner(self, "ANCHOR_RIGHT")
-        tip:SetText(L.TOOLTIP_TITLE, 0.20, 0.66, 0.63)
+        tip:SetOwner(self, "ANCHOR_TOPRIGHT")
+        tip:AddLine(L.TOOLTIP_TITLE, 0, 1, 0)
         tip:AddLine(L.TOOLTIP_HINT, 1, 1, 1)
         tip:Show()
     end)
-    _G.SendMailNameEditBox:SetScript("OnLeave", function()
+    _G.SendMailNameEditBox:HookScript("OnLeave", function()
         local tip = GetOrCreateTooltip()
         tip:Hide()
     end)
