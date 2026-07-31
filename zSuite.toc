@@ -30,11 +30,11 @@ Modules\Strix\Locale.lua
 Modules\PhaseWatcher\Locale.lua
 
 # === LorisID 模块 ===
+Modules\LorisID\Core.lua
 Modules\LorisID\Cache.lua
 Modules\LorisID\AsyncLoader.lua
 Modules\LorisID\AuraScanner.lua
 Modules\LorisID\ItemQuery.lua
-Modules\LorisID\Core.lua
 
 # === Strix 模块 ===
 Modules\Strix\Core.lua

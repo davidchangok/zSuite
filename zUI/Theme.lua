@@ -673,8 +673,7 @@ end
 
 function zUI.RefreshFrameBackground(frame)
     if not frame then return end
-    local bgPath = zUI.GetDefaultBackgroundTexture()
-    frame:SetBackdrop({bgFile = bgPath and bgPath ~= "" and bgPath or nil})
+    frame:SetBackdrop(zUI.MakeBackdrop())
     local bg = frame._mrBackgroundColor or {0.02, 0.03, 0.07, 0.96}
     local bd = frame._mrBorderColor or {0.15, 0.15, 0.20, 1}
     frame:SetBackdropColor(bg[1], bg[2], bg[3], bg[4])

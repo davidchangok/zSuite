@@ -90,8 +90,6 @@ function zSuite.ApplyUIConfig()
     local db = zSuite.db
     if not db or not db.ui then return end
 
-    local charLayout = db.ui.characterWindowLayout
-
     zUI.ApplyConfig({
         fontMedia = db.ui.fontMedia,
         fontMediaPath = db.ui.fontMediaPath,
@@ -100,17 +98,17 @@ function zSuite.ApplyUIConfig()
         backgroundMedia = db.ui.backgroundMedia,
         backgroundMediaPath = db.ui.backgroundMediaPath,
         colors = db.ui.colors,
-        characterWindowLayout = charLayout,
+        characterWindowLayout = db.ui.characterWindowLayout,
 
-        -- 窗口位置回调
+        -- 窗口位置回调（每次调用时实时读取 db.ui.characterWindowLayout，而非捕获快照）
         getWindowLayoutValue = function(key)
-            if charLayout and db.charWindowLayout[key] then
+            if db.ui.characterWindowLayout and db.charWindowLayout[key] then
                 return db.charWindowLayout[key]
             end
             return db.windowLayout[key]
         end,
         setWindowLayoutValue = function(key, value)
-            if charLayout then
+            if db.ui.characterWindowLayout then
                 db.charWindowLayout[key] = value
             else
                 db.windowLayout[key] = value
@@ -142,14 +140,7 @@ local function HandleSlash(msg)
     elseif cmd == "version" then
         zUI.Print("zSuite v" .. (zSuite.Version or "1.0.0"))
     else
-        -- 转发到模块
-        for name, mod in pairs(zSuite.modules) do
-            if mod and mod.HandleSlash then
-                mod:HandleSlash(msg)
-                return
-            end
-        end
-        zUI.Print("未知命令: " .. cmd)
+        zUI.Print("zSuite: /zs | /zs config | /zs version")
     end
 end
 

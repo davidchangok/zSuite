@@ -231,7 +231,7 @@ local function CheckInboxForAlts()
 
     local numItems = _G.GetInboxNumItems and _G.GetInboxNumItems() or 0
     for i = 1, math.min(numItems, 50) do
-        local _, _, _, _, _, _, _, _, _, _, senderName = _G.GetInboxHeaderInfo(i)
+        local _, _, senderName = _G.GetInboxHeaderInfo(i)  -- sender 在第 3 位置
         if senderName then
             local name = string.match(senderName, "^([^%-]+)")
             local realm = string.match(senderName, "%-(.+)$")
@@ -269,7 +269,8 @@ end)
 --  初始化
 -- ============================================================
 function mod:Init()
-    if not mod.enabled then return end
+    local db = zSuite.db and zSuite.db.modules and zSuite.db.modules.strix
+    if not (db and db.enabled) then return end
     eventFrame:RegisterEvent("PLAYER_LOGIN")
     eventFrame:RegisterEvent("MAIL_SHOW")
     eventFrame:RegisterEvent("MAIL_SEND_SUCCESS")

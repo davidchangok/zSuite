@@ -139,9 +139,12 @@ function mod:UpdateUI()
 end
 
 function mod:UpdateFrameVisibility()
-    if not mainFrame then return end
     local db = mod.GetDB()
     if not db then return end
+    if not mainFrame then
+        if db.showFrame then mod:InitializeUI() end
+        return
+    end
     if not db.showFrame then mainFrame:Hide(); return end
     if db.autoHideInCombat and _G.InCombatLockdown and _G.InCombatLockdown() then mainFrame:Hide(); return end
     mainFrame:Show()
