@@ -51,7 +51,9 @@ end
 function zUI.WrapColor(rrggbb, text)
     if not rrggbb or not text then return text or "" end
     local hex = rrggbb:gsub("#", "")
-    return "|cff" .. hex .. text .. "|r"
+    -- hex 已包含 alpha 通道（如 RAID_CLASS_COLORS.colorStr = "ffC79C6E"），
+    -- 只需拼接 |c 前缀即可组成 |cAARRGGBB
+    return "|c" .. hex .. text .. "|r"
 end
 
 --- 根据完成/总数比例返回 RGB 颜色
