@@ -33,12 +33,14 @@ local L = mod.L or _G.zSuiteStrix_L
 -- ============================================================
 local raceCorrections = { scourge = "undead" }
 
--- 从 RAID_CLASS_COLORS RGB 构建颜色转义（.colorStr 在 WoW 11.0+ 已移除）
+-- 使用 11.0+ 官方 API C_ClassColor.GetClassColor(classFile)
 local function ClassColorWrap(name, classFile)
     if not name or not classFile then return name or "?" end
-    local c = _G.RAID_CLASS_COLORS and _G.RAID_CLASS_COLORS[classFile]
-    if not c then return name end
-    return "|c" .. string.format("ff%02x%02x%02x", c.r * 255, c.g * 255, c.b * 255) .. name .. "|r"
+    local c = _G.C_ClassColor and _G.C_ClassColor.GetClassColor(classFile)
+    if c and c.colorStr then
+        return "|c" .. c.colorStr .. name .. "|r"
+    end
+    return name
 end
 
 local function GetRaceAtlas(race, sex)
