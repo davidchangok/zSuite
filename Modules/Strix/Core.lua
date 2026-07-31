@@ -37,8 +37,8 @@ local raceCorrections = { scourge = "undead" }
 local function ClassColorWrap(name, classFile)
     if not name or not classFile then return name or "?" end
     local c = _G.C_ClassColor and _G.C_ClassColor.GetClassColor(classFile)
-    if c and c.colorStr then
-        return "|c" .. c.colorStr .. name .. "|r"
+    if c and c.GenerateHexColor then
+        return "|c" .. c:GenerateHexColor() .. name .. "|r"
     end
     return name
 end
@@ -139,7 +139,7 @@ end
 
 local function ShowContextMenu()
     if not _G.MenuUtil then return end
-    _G.MenuUtil.CreateContextMenu(_G.UIParent, BuildMenu)
+    _G.MenuUtil.CreateContextMenu(_G.UIParent, function(owner, rootDescription) BuildMenu(rootDescription) end)
 end
 
 -- ============================================================
