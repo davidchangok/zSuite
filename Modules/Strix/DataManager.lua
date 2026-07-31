@@ -99,7 +99,9 @@ function Data:RegisterCurrentCharacter()
     realm = realm or zUI.Security.SafeGet(_G.GetRealmName) or ""
 
     local faction = zUI.Security.SafeGet(_G.UnitFactionGroup, "player")
-    local _, classFile = zUI.Security.SafeGet(_G.UnitClass, "player")
+    -- UnitClass 返回 3 个值，SafeGet 只捕获第一个。用 pcall 获取全部。
+    local ok, className, classFile = pcall(_G.UnitClass, "player")
+    if not ok then classFile = nil end
     local race = zUI.Security.SafeGet(_G.UnitRace, "player")
     local sex = zUI.Security.SafeGet(_G.UnitSex, "player")
     local level = zUI.Security.SafeGet(_G.UnitLevel, "player")
@@ -288,7 +290,7 @@ function Data:MoveRecentToAlts(index)
     if currentKey == entry.key then
         -- 当前角色就是此收件人 → 填入完整信息
         faction = zUI.Security.SafeGet(_G.UnitFactionGroup, "player")
-        _, classFile = zUI.Security.SafeGet(_G.UnitClass, "player")
+        do local ok, cName, cFile = pcall(_G.UnitClass, "player"); if ok then classFile = cFile end end
         race = zUI.Security.SafeGet(_G.UnitRace, "player")
         sex = zUI.Security.SafeGet(_G.UnitSex, "player")
         level = zUI.Security.SafeGet(_G.UnitLevel, "player")
