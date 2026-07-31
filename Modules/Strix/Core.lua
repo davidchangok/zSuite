@@ -33,6 +33,14 @@ local L = mod.L or _G.zSuiteStrix_L
 -- ============================================================
 local raceCorrections = { scourge = "undead" }
 
+-- 从 RAID_CLASS_COLORS RGB 构建颜色转义（.colorStr 在 WoW 11.0+ 已移除）
+local function ClassColorWrap(name, classFile)
+    if not name or not classFile then return name or "?" end
+    local c = _G.RAID_CLASS_COLORS and _G.RAID_CLASS_COLORS[classFile]
+    if not c then return name end
+    return "|c" .. string.format("ff%02x%02x%02x", c.r * 255, c.g * 255, c.b * 255) .. name .. "|r"
+end
+
 local function GetRaceAtlas(race, sex)
     if not race then return "raceicon128-human-male" end
     local raceFile = raceCorrections[race] or race
@@ -57,10 +65,7 @@ end
 
 local function GetFormattedName(alt)
     if not alt then return "?" end
-    return GetFactionIconString(alt.faction) ..
-           (alt.classFile and _G.RAID_CLASS_COLORS and _G.RAID_CLASS_COLORS[alt.classFile]
-            and zUI.WrapColor(_G.RAID_CLASS_COLORS[alt.classFile].colorStr, alt.name or "?")
-            or alt.name or "?")
+    return GetFactionIconString(alt.faction) .. ClassColorWrap(alt.name, alt.classFile)
 end
 
 -- ============================================================
@@ -376,11 +381,7 @@ function mod:BuildOptions(content)
                 altRows[i] = row
             end
             row.altIndex = i
-            local colorWrap = alt.name or "?"
-            if alt.classFile and _G.RAID_CLASS_COLORS and _G.RAID_CLASS_COLORS[alt.classFile] then
-                colorWrap = zUI.WrapColor(_G.RAID_CLASS_COLORS[alt.classFile].colorStr, alt.name or "?")
-            end
-            local nameStr = colorWrap
+            local nameStr = ClassColorWrap(alt.name, alt.classFile)
             local realmStr = alt.realm and (" |cFF888888(" .. alt.realm .. ")|r") or ""
             local levelStr = L.LEVEL_FORMAT and string.format(L.LEVEL_FORMAT, alt.level or 0) or ("Lv." .. (alt.level or "?"))
             row.text:SetText(nameStr .. realmStr .. "  " .. levelStr)
