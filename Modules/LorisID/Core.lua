@@ -235,29 +235,6 @@ function mod:Init()
     -- Unit 补充路径：hooksecurefunc(SetUnit) — 直接从 UnitGUID 获取 NPC ID
     RegisterUnitHook()
 
-    -- 斜杠命令（Bug#4 修复：nil guard）
-    _G.SLASH_LORISID1 = "/lid"
-    _G.SLASH_LORISID2 = "/lorisid"
-    _G.SLASH_LORISID3 = "/et"
-    _G.SlashCmdList["LORISID"] = function(msg)
-        msg = msg or ""
-        local cmd = string.match(msg, "^(%S+)%s*(.*)$")
-        cmd = cmd or msg:lower()
-
-        if cmd == "cache" then
-            mod.Cache:Clear()
-            zUI.Print("LorisID 缓存已清除")
-        elseif cmd == "debug" then
-            local db = GetDB()
-            if db then db.debugMode = not db.debugMode end
-            zUI.Print("调试模式: " .. tostring(db and db.debugMode))
-        elseif cmd == "version" then
-            zUI.Print("zSuite LorisID v2.3.0-remastered")
-        else
-            zUI.Print("/lid [cache|debug|version]  设置请用 /zs")
-        end
-    end
-
     -- PerfCheck（Bug#3 修复：仅在模块 enabled 时启动）
     local function PerfCheck()
         if not IsModuleEnabled() then return end
