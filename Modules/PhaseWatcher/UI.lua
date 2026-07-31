@@ -63,7 +63,7 @@ local function CreateWindow()
                 end)
                 root:CreateDivider()
                 root:CreateButton(L.CMD_CONFIG, function()
-                    if zSuite.OpenOptions then zSuite.OpenOptions() end
+                    if zSuite.OpenOptions then zSuite.OpenOptions("phasewatcher") end
                 end)
             end)
         end

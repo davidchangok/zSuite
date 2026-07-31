@@ -133,7 +133,7 @@ local function BuildMenu(rootDescription)
     -- Manage
     rootDescription:CreateDivider()
     rootDescription:CreateButton(L.MENU_MANAGE_LIST, function()
-        if zSuite.OpenOptions then zSuite.OpenOptions() end
+        if zSuite.OpenOptions then zSuite.OpenOptions("strix") end
     end)
 end
 
@@ -281,7 +281,7 @@ end
 -- ============================================================
 _G.SLASH_STRIX1 = "/strix"
 _G.SlashCmdList["STRIX"] = function()
-    if zSuite.OpenOptions then zSuite.OpenOptions() end
+    if zSuite.OpenOptions then zSuite.OpenOptions("strix") end
 end
 
 function mod:HandleSlash(msg)

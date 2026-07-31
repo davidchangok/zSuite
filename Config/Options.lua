@@ -96,9 +96,10 @@ end
 -- ============================================================
 --  OpenOptions — 创建并显示选项窗体（仅在首次调用时构建）
 -- ============================================================
-function zSuite.OpenOptions()
+function zSuite.OpenOptions(tabId)
     if optionsFrame then
         optionsFrame:Show()
+        if tabId then zUI.SwitchTab(optionsFrame, tabId) end
         return
     end
 
@@ -135,6 +136,9 @@ function zSuite.OpenOptions()
     end
 
     optionsFrame:Show()
+
+    -- 如果指定了标签页，切换到它（创建后首次显示为 general）
+    if tabId then zUI.SwitchTab(optionsFrame, tabId) end
 end
 
 -- ============================================================
